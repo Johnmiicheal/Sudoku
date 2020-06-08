@@ -1,4 +1,5 @@
 import tkinter as tk
+from input_window import Input
 class Choice:
     """Make choice on cell"""
     #remove choice, make choice
@@ -6,6 +7,7 @@ class Choice:
     def __init__(self, parent, cell_id):
         self.parent = parent  # this is an instance of the sudoku class
         self.cell_id = cell_id
+        self.cell_id_str = "." + str(self.cell_id)
         self.build()
 
 
@@ -34,10 +36,12 @@ class Choice:
         self.root.destroy()
 
         if self.choice == 0: #remove choice
-           self.parent.board.delete(self.cell_id)
+           self.parent.board.delete(self.cell_id_str)
 
-        else:
-           pass
+        else: #make choice
+            Input(self.parent, self.cell_id)
+
+           
 
     def handle_event(self, event):
         self.handle_choice()

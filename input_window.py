@@ -1,42 +1,52 @@
 import tkinter as tk
-class Choice:
+class Input:
     """Make choice on cell"""
     #remove choice, make choice
 
     def __init__(self, parent, cell_id):
         self.parent = parent  # this is an instance of the sudoku class
         self.cell_id = cell_id
+        self.cell_id_str = "." + str(self.cell_id)
         self.build()
 
 
     def build(self):
         self.root = tk.Tk()
-        self.root.title('Cell Options')
+        self.root.title('Input Window')
         self.root.bind('<Return>', self.handle_event)
-        self.label = tk.Label(self.root, text="Make a Choice")
+        self.label = tk.Label(self.root, text="Input num in range(1,9) inclusive")
         self.label.grid(row=0, column=0, pady=10, padx=10)
 
-        self.choice = tk.IntVar(self.root)
+        self.choice = tk.StringVar(self.root)
 
-        self.rbtn1 = tk.Radiobutton(self.root, text="Remove Choice (if any)", variable=self.choice, value=0)
-        self.rbtn1.grid(row=1, column=0)
+        self.entry = tk.Entry(self.root, textvariable= self.choice)
+        self.entry.grid(row=1,column=0,pady=10,padx=10)
 
-        self.rbtn2 = tk.Radiobutton(self.root, text="Make Choice", variable=self.choice, value=1)
-        self.rbtn2.grid(row=2, column=0)
 
         self.button = tk.Button(self.root, text='Confirm', command=self.handle_choice)
         self.button.grid(row=3, column=0, pady=10)
 
         self.root.mainloop()
 
+
+    def cell_id_to_pos(self):
+        y = self.cell_id // 9
+        x = self.cell_id - (y*9)
+
+        pos_x,pos_y = self.parent.loc_to_pos(x,y)
+        return pos_x, pos_y
+
     def handle_choice(self):
-        self.choice = self.choice.get()
+        choice = int(self.choice.get())
         self.root.destroy()
 
-        if self.choice == 0: #remove choice
-           self.parent.board.delete(self.cell_id)
+        x,y = self.cell_id_to_pos()
 
-        else:
+        self.parent.board.delete(self.cell_id_str)
+
+        self.parent.draw(x, y,choice, self.cell_id_str)
+
+
            
 
     def handle_event(self, event):

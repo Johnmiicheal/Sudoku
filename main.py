@@ -76,7 +76,7 @@ class Sudoku:
         x,y = self.pos_to_loc(event.x, event.y)
         cell_id = y*9+x
         print(cell_id)
-        Choice(self, str(cell_id) )
+        Choice(self, cell_id )
 
 
         
@@ -153,15 +153,10 @@ class Sudoku:
 
     def draw(self, x, y, text, cell_id):
         if text is not None:
-            self.board.create_text(x, y, text=text, font=('Times', 20), tag= str(cell_id) )
+            self.board.create_text(x, y, text=text, font=('Times', 20), tag= "."+str(cell_id) )
 
         else:
-            self.board.create_text(x, y, text='', font=('Times', 20), tag= str(cell_id) )
-
-
-
-    
-
+            self.board.create_text(x, y, text='', font=('Times', 20), tag= "."+str(cell_id) )
 
 
 
