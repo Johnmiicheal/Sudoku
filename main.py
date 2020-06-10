@@ -2,6 +2,7 @@ import tkinter as tk
 import random
 import copy
 from input_window import Input
+from tkinter import messagebox
 
 class Sudoku:
     def __init__(self, mode, difficulty):
@@ -23,14 +24,18 @@ class Sudoku:
 
     def build(self):
         self.root = tk.Tk()
-        self.root.geometry(f"{self.width}x{self.height}")
-        self.root.resizable(width=False, height=False)
-        self.root.bind("<Button-1>", self.handle_button1)
-        self.root.bind("<Button-3>", self.handle_button3)  
+        self.root.geometry(f"{self.width}x{self.height+100}")
+        # self.root.resizable(width=False, height=False)
+         
 
 
         self.board = tk.Canvas(self.root,width=self.width, height=self.height)
         self.board.pack()
+        self.board.bind("<Button-1>", self.handle_button1)
+        self.board.bind("<Button-3>", self.handle_button3) 
+
+        self.solve_btn =  tk.Button(self.root, text='Solve', command=self.solve)
+        self.solve_btn.pack()
 
         self.gen_lines()
         self.make_puzzle()
@@ -180,8 +185,6 @@ class Sudoku:
             # self.crummy_delete(x,y)
 
 
-
-
     def cell_id_to_pos(self, cell_id):
         y = cell_id // 9
         x = cell_id - (y*9)
@@ -197,20 +200,48 @@ class Sudoku:
         return x, y
 
 
+
+    def solve(self):
+        for row_idx in range(len(self.puzzle)):
+            for col_idx in range(len(self.puzzle)):
+                x,y = col_idx, row_idx
+                correct = self.solution[row_idx][col_idx]
+                curr = self.puzzle[row_idx][col_idx]
+                if curr != correct:
+                    cell_id = y*9+x
+                    tag = "." + str(cell_id)
+                    self.rect(x,y,"blue", cell_id )
+                    x,y = self.loc_to_pos(x,y)
+                    self.draw(x,y, correct, tag)
+                    
+                    
+
+
+
     def handle_choice_entry(self, cell_id):
-        choice = int(self.choice.get())
-        self.e.destroy()
+        try:
+            choice = int(self.choice.get())
+            self.e.destroy()
 
-        x,y = self.cell_id_to_loc(cell_id)
-        if choice == self.solution[y][x]:
-            self.rect(x,y,"green", cell_id)
-        else:
-            self.rect(x,y,"red", cell_id)
+            x,y = self.cell_id_to_loc(cell_id)
+            if choice == self.solution[y][x]:
+                self.rect(x,y,"green", cell_id)
+            else:
+                self.rect(x,y,"red", cell_id)
 
 
 
-        x,y = self.cell_id_to_pos(cell_id)
-        self.draw(x, y, choice, cell_id)
+            x,y = self.cell_id_to_pos(cell_id)
+            self.draw(x, y, choice, cell_id)
+            x,y = self.pos_to_loc(x,y)
+            self.puzzle[y][x] = choice
+            if self.puzzle == self.solution:
+                messagebox.showinfo("Gameover", "Game is oVer")
+                self.root.destroy()
+
+        except:
+            messagebox.showinfo("Input Error", "invalid input")
+
 
 
 
