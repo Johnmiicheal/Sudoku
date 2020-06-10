@@ -13,7 +13,6 @@ class Sudoku:
         self.build()
 
 
-
     def build(self):
         self.root = tk.Tk()
         self.root.geometry(f"{self.width+100}x{self.height+30}")
@@ -39,11 +38,11 @@ class Sudoku:
 
         self.root.mainloop()
 
+
     def gen_lines_helper(self, x, y, length,width):
         step = length // 3
         pos = [step*i for i in range(1,3)]
 
-        #main grid lines
         for i in range(2):
             self.board.create_line(x, y+pos[i], x+length, y+pos[i], width=width) #horizontal lines
             self.board.create_line(x+pos[i],y,x+pos[i], y+length, width= width) #vertical lines
@@ -51,7 +50,7 @@ class Sudoku:
     def gen_lines(self):
         self.gen_lines_helper(0,0, self.width, self.linewidth_bg) # draw main lines
 
-        tlc = {} #index location map
+        tlc = {} #index -> location map
         for y in range(3):
             for x in range(3):
                 tlc[y*3+x] = [y,x] 
@@ -60,6 +59,7 @@ class Sudoku:
         for i in range(9):
             y,x = [idx*small_step for idx in tlc[i]]
             self.gen_lines_helper(x, y, small_step, self.linewd_sm) #draw small lines
+
 
     def gen_puzzle(self):
         """Generates solved sudoku"""
@@ -78,6 +78,7 @@ class Sudoku:
             puzzle.append(row)
 
         return puzzle
+
 
     def make_puzzle(self):
         """Applies removal rate, mutability index to solved sudoku and draws puzzle on board"""
@@ -109,31 +110,6 @@ class Sudoku:
 
                 #check mutability 
                 self.mutablility_index[y][x] = True if curr == None else False
-
-
-    def pos_to_loc(self, x, y):
-        loc_x = x// self.cellsize
-        loc_y = y// self.cellsize
-        return loc_x, loc_y
-        
-
-    def cell_id_to_pos(self, cell_id):
-        y = cell_id // 9
-        x = cell_id - (y*9)
-
-        pos_x, pos_y = x*self.cellsize, y*self.cellsize
-
-        #center positions
-        pos_x += self.cellsize // 2
-        pos_y += self.cellsize // 2
-
-        return pos_x, pos_y
-
-
-    def cell_id_to_loc(self, cell_id):
-        y = cell_id // 9
-        x = cell_id - (y*9)
-        return x, y
 
 
     def solve(self):
@@ -222,6 +198,7 @@ class Sudoku:
         if text is not None:
             self.board.create_text(x, y, text=text, font=('Times', 20), tag= "."+str(cell_id) )
 
+
     def rect(self, color, cell_id):
         """Highlight cell"""
         x,y = self.cell_id_to_pos(cell_id)
@@ -236,6 +213,32 @@ class Sudoku:
         
 
     mutable = lambda self, x, y: self.mutablility_index[y][x] #return cell mutability
+
+
+    def pos_to_loc(self, x, y):
+        loc_x = x// self.cellsize
+        loc_y = y// self.cellsize
+        return loc_x, loc_y
+        
+
+    def cell_id_to_pos(self, cell_id):
+        y = cell_id // 9
+        x = cell_id - (y*9)
+
+        pos_x, pos_y = x*self.cellsize, y*self.cellsize
+
+        #center positions
+        pos_x += self.cellsize // 2
+        pos_y += self.cellsize // 2
+
+        return pos_x, pos_y
+
+
+    def cell_id_to_loc(self, cell_id):
+        y = cell_id // 9
+        x = cell_id - (y*9)
+        return x, y
+
 
 
 
