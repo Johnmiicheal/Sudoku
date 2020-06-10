@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 import copy
-from input_window import Input
+# from input_window import Input
 from tkinter import messagebox
 
 class Sudoku:
@@ -36,6 +36,9 @@ class Sudoku:
 
         self.solve_btn =  tk.Button(self.root, text='Solve', command=self.solve)
         self.solve_btn.pack()
+
+        self.restart_btn = tk.Button(self.root, text='Restart', command=self.restart)
+        self.restart_btn.pack()
 
         self.gen_lines()
         self.make_puzzle()
@@ -209,13 +212,22 @@ class Sudoku:
                 curr = self.puzzle[row_idx][col_idx]
                 if curr != correct:
                     cell_id = y*9+x
-                    tag = "." + str(cell_id)
                     self.rect(x,y,"blue", cell_id )
                     x,y = self.loc_to_pos(x,y)
-                    self.draw(x,y, correct, tag)
+                    self.draw(x,y, correct, cell_id)
                     
                     
 
+
+    def restart(self):
+        for row_idx in range(len(self.puzzle)):
+            for col_idx in range(len(self.puzzle)):
+                x,y = col_idx, row_idx
+                mutable = self.check_mutability(x,y)
+                if mutable:
+                    cell_id = y*9+x
+                    self.board.delete( "." + str(cell_id))
+                    self.board.delete(".r" + str(cell_id) )
 
 
     def handle_choice_entry(self, cell_id):
