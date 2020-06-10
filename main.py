@@ -1,7 +1,6 @@
 import tkinter as tk
 import random
 import copy
-# from input_window import Input
 from tkinter import messagebox
 
 class Sudoku:
