@@ -14,17 +14,22 @@ class Input:
         self.root = tk.Tk()
         self.root.title('Input Window')
         self.root.bind('<Return>', self.handle_event)
-        self.label = tk.Label(self.root, text="Input num in range(1,9) inclusive")
-        self.label.grid(row=0, column=0, pady=10, padx=10)
+        # self.root.focus_force()
+        self.root.after(1, lambda: self.root.focus_force())
+        # self.label = tk.Label(self.root, text="Input num in range(1,9) inclusive")
+        # self.label.grid(row=0, column=0, pady=10, padx=10)
 
         self.choice = tk.StringVar(self.root)
 
         self.entry = tk.Entry(self.root, textvariable= self.choice)
-        self.entry.grid(row=1,column=0,pady=10,padx=10)
+        # self.entry.grid(row=1,column=0,pady=10,padx=10)
+        self.entry.grid(row=0,column=0,pady=10,padx=10)
+        self.entry.focus()
 
 
-        self.button = tk.Button(self.root, text='Confirm', command=self.handle_choice)
-        self.button.grid(row=3, column=0, pady=10)
+
+        # self.button = tk.Button(self.root, text='Confirm', command=self.handle_choice)
+        # self.button.grid(row=3, column=0, pady=10)
 
         self.root.mainloop()
 

@@ -13,6 +13,7 @@ class Sudoku:
 
             self.width, self.height = 800,800
             self.difficulty = difficulty
+            self.linewd_sm, self.linewidth_bg = 3,7
             self.game = [[[None for i in range(3)] for i in range(3)] for i in range(9)]
             self.cellsize =  self.width // 9
             self.solution = []
@@ -31,7 +32,7 @@ class Sudoku:
         self.board = tk.Canvas(self.root,width=self.width, height=self.height)
         self.board.pack()
 
-        self.gen_lines(7,3)
+        self.gen_lines()
         self.make_puzzle()
 
         self.root.mainloop()
@@ -46,9 +47,9 @@ class Sudoku:
             self.board.create_line(x, y+pos[i], x+length, y+pos[i], width=width) #horizontal lines
             self.board.create_line(x+pos[i],y,x+pos[i], y+length, width= width) #vertical lines
     
-    def gen_lines(self, b_width,s_width):
+    def gen_lines(self):
 
-        self.gen_lines_recursive(0,0, self.width,  b_width)
+        self.gen_lines_recursive(0,0, self.width, self.linewidth_bg)
 
         tlc = {} #idx to pos
         for y in range(3):
@@ -60,7 +61,7 @@ class Sudoku:
         small_step  = self.width//3
         for i in range(9):
             y,x = [idx*small_step for idx in tlc[i]]
-            self.gen_lines_recursive(x, y, small_step, s_width)
+            self.gen_lines_recursive(x, y, small_step, self.linewd_sm)
 
     def pos_to_loc(self, x, y):
         loc_x = x// self.cellsize
@@ -74,6 +75,19 @@ class Sudoku:
         pos_y += self.cellsize // 2
 
         return pos_x, pos_y
+
+
+    def loc_to_pos_rect(self, x, y):
+        cellsize = (self.width - 40) // 9
+
+        pos_x, pos_y = x*cellsize, y*cellsize
+        #center positions
+        pos_x += cellsize // 2
+        pos_y += cellsize // 2
+
+        return pos_x, pos_y
+        
+
 
     def flatten(self,arr):
         return [j for j in i for i in arr]
@@ -146,9 +160,6 @@ class Sudoku:
                 self.mutablility_index[row_idx][col_idx] = mutability
 
 
-        
- 
-
     def draw(self, x, y, text, cell_id):
         # text = '' if text is None else text
         if text is not None:
@@ -170,12 +181,69 @@ class Sudoku:
 
 
 
+
+    def cell_id_to_pos(self, cell_id):
+        y = cell_id // 9
+        x = cell_id - (y*9)
+
+        pos_x,pos_y = self.loc_to_pos(x,y)
+        return pos_x, pos_y
+
+
+    def cell_id_to_loc(self, cell_id):
+        y = cell_id // 9
+        x = cell_id - (y*9)
+
+        return x, y
+
+
+    def handle_choice_entry(self, cell_id):
+        choice = int(self.choice.get())
+        self.e.destroy()
+
+        x,y = self.cell_id_to_loc(cell_id)
+        if choice == self.solution[y][x]:
+            self.rect(x,y,"green", cell_id)
+        else:
+            self.rect(x,y,"red", cell_id)
+
+
+
+        x,y = self.cell_id_to_pos(cell_id)
+        self.draw(x, y, choice, cell_id)
+
+
+
+
+
+    def gen_entry(self, pos_x, pos_y, cell_id):
+        x,y = pos_x, pos_y
+        self.choice = tk.StringVar(self.root)
+        self.e = tk.Entry(self.board, textvariable=self.choice)
+        self.e.bind('<Return>', lambda event : self.handle_choice_entry(cell_id))
+        self.e.focus()
+        # entry_window()
+
+        # step = self.cellsize / 2
+        # x1,x2 =  x-step, x+step
+        # y1,y2 = y-step, y+step
+
+
+        self.board.create_window(x,y,window = self.e, width=self.cellsize, height=self.cellsize)
+
+
+
+
     def handle_button1(self, event):
         x,y = self.pos_to_loc(event.x, event.y)
+        
         mutable = self.check_mutability(x,y)
         if mutable:
             cell_id = y*9+x
-            Input(self, cell_id)
+            x,y = self.loc_to_pos(x,y)
+            
+            self.gen_entry(x,y, cell_id)
+            # Input(self, cell_id)
 
 
     def crummy_delete(self, x, y):
@@ -190,7 +258,7 @@ class Sudoku:
     def rect(self, x, y, color, cell_id):
         rect_tag = ".r" + str(cell_id) 
         x,y = self.loc_to_pos(x,y)
-        step  =self.cellsize // 2
+        step  =self.cellsize / 2
         x1,x2 =  x-step, x+step
         y1,y2 = y-step, y+step
 
