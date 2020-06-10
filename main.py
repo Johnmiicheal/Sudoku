@@ -15,6 +15,7 @@ class Sudoku:
             self.difficulty = difficulty
             self.game = [[[None for i in range(3)] for i in range(3)] for i in range(9)]
             self.cellsize =  self.width // 9
+            self.solution = []
             self.build()
 
 
@@ -118,6 +119,7 @@ class Sudoku:
         removal_rate = diffs[self.difficulty]
         num_to_remove = int(removal_rate * 81)
         self.puzzle = self.gen_puzzle()
+        self.solution = copy.deepcopy(self.puzzle)
 
         #apply removal rate to puzzle
         for _ in range(num_to_remove):
@@ -150,7 +152,7 @@ class Sudoku:
     def draw(self, x, y, text, cell_id):
         # text = '' if text is None else text
         if text is not None:
-            self.board.create_text(x, y, text=text, font=('Times', 20), tag= "c"+str(cell_id) )
+            self.board.create_text(x, y, text=text, font=('Times', 20), tag= "."+str(cell_id) )
             
 
       
@@ -159,8 +161,10 @@ class Sudoku:
         mutable = self.check_mutability(x,y)
         if mutable:
             cell_id = y*9+x
-            cell_id_str = "c" + str(cell_id)
-            self.board.delete(cell_id_str)
+            # cell_id_str = "c" + str(cell_id)
+            self.board.delete("." + str(cell_id) ) #num
+            self.board.delete(".r" + str(cell_id) ) #rect
+
             # x,y = self.loc_to_pos(x,y)
             # self.crummy_delete(x,y)
 
@@ -183,6 +187,15 @@ class Sudoku:
         self.board.create_rectangle(x1,y1,x2,y2)
 
 
+    def rect(self, x, y, color, cell_id):
+        rect_tag = ".r" + str(cell_id) 
+        x,y = self.loc_to_pos(x,y)
+        step  =self.cellsize // 2
+        x1,x2 =  x-step, x+step
+        y1,y2 = y-step, y+step
+
+        self.board.create_rectangle(x1,y1,x2,y2, fill=color, tag=rect_tag)
+        
 
 
     def check_mutability(self, x, y):

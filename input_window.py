@@ -6,7 +6,7 @@ class Input:
     def __init__(self, parent, cell_id):
         self.parent = parent  # this is an instance of the sudoku class
         self.cell_id = cell_id
-        self.cell_id_str = "c" + str(self.cell_id)
+        self.cell_id_str = "." + str(self.cell_id)
         self.build()
 
 
@@ -36,15 +36,33 @@ class Input:
         pos_x,pos_y = self.parent.loc_to_pos(x,y)
         return pos_x, pos_y
 
+
+    def cell_id_to_loc(self):
+        y = self.cell_id // 9
+        x = self.cell_id - (y*9)
+
+        return x, y
+
+
     def handle_choice(self):
         choice = int(self.choice.get())
         self.root.destroy()
 
+       
+   
+     
+        x,y = self.cell_id_to_loc()
+        if choice == self.parent.solution[y][x]:
+            self.parent.rect(x,y,"green", self.cell_id)
+        else:
+            self.parent.rect(x,y,"red", self.cell_id)
+
+
+
         x,y = self.cell_id_to_pos()
-
-        # self.parent.board.delete(self.cell_id_str)
-
         self.parent.draw(x, y, choice, self.cell_id)
+
+
         # self.parent.board.delete(self.cell_id_str)
 
 
