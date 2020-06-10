@@ -36,7 +36,7 @@ class Choice:
         self.root.destroy()
 
         if self.choice == 0: #remove choice
-           self.parent.board.delete(self.cell_id_str)
+           
 
         else: #make choice
             Input(self.parent, self.cell_id)

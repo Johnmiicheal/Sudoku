@@ -1,7 +1,7 @@
 import tkinter as tk
 import random
 import copy
-from choice_window import Choice
+from input_window import Input
 
 class Sudoku:
     def __init__(self, mode, difficulty):
@@ -23,7 +23,9 @@ class Sudoku:
         self.root = tk.Tk()
         self.root.geometry(f"{self.width}x{self.height}")
         self.root.resizable(width=False, height=False)
-        self.root.bind("<Button-1>", self.handleclick)  
+        self.root.bind("<Button-1>", self.handle_button1)
+        self.root.bind("<Button-3>", self.handle_button3)  
+
 
         self.board = tk.Canvas(self.root,width=self.width, height=self.height)
         self.board.pack()
@@ -52,7 +54,7 @@ class Sudoku:
             for x in range(3):
                 tlc[y*3+x] = [y,x] 
         
-        print(tlc)
+        # print(tlc)
 
         small_step  = self.width//3
         for i in range(9):
@@ -71,15 +73,6 @@ class Sudoku:
         pos_y += self.cellsize // 2
 
         return pos_x, pos_y
-
-    def handleclick(self, event):
-        x,y = self.pos_to_loc(event.x, event.y)
-        cell_id = y*9+x
-        print(cell_id)
-        Choice(self, cell_id )
-
-
-        
 
     def flatten(self,arr):
         return [j for j in i for i in arr]
@@ -116,13 +109,6 @@ class Sudoku:
             # row = self.reshape(row)
             puzzle.append(row)
 
-        
-        #print puzzle
-        # for row in puzzle:
-        #     for val in row:
-        #         print(str(val) +' ', end='')
-        #     print('')
-
         return puzzle
 
 
@@ -131,35 +117,82 @@ class Sudoku:
 
         removal_rate = diffs[self.difficulty]
         num_to_remove = int(removal_rate * 81)
-        puzzle = self.gen_puzzle()
+        self.puzzle = self.gen_puzzle()
 
         #apply removal rate to puzzle
         for _ in range(num_to_remove):
             _range = [i for i in range(9)]
             x,y = random.choice(_range), random.choice(_range)
-            puzzle[y][x] = None
+            self.puzzle[y][x] = None
 
 
         #print puzzle on board
-        for row_idx in range(len(puzzle)):
-            for col_idx in range(len(puzzle)):
+        #construct mutability index
+        self.mutablility_index = [[None for i in range(9)]for i in range(9)]
+        for row_idx in range(len(self.puzzle)):
+            for col_idx in range(len(self.puzzle)):
+                
                 x,y = col_idx, row_idx
                 pos_x, pos_y = self.loc_to_pos(x,y)
                 cell_id = y*9+x
 
-                self.draw(pos_x, pos_y, puzzle[row_idx][col_idx], cell_id )
-                
+                self.draw(pos_x, pos_y, self.puzzle[row_idx][col_idx], cell_id)
 
+                #disallows player interaction with generated numbers
+                curr = self.puzzle[row_idx][col_idx]
+                mutability = True if curr == None else False
+                self.mutablility_index[row_idx][col_idx] = mutability
+
+
+        
+ 
 
     def draw(self, x, y, text, cell_id):
+        # text = '' if text is None else text
         if text is not None:
-            self.board.create_text(x, y, text=text, font=('Times', 20), tag= "."+str(cell_id) )
+            self.board.create_text(x, y, text=text, font=('Times', 20), tag= "c"+str(cell_id) )
+            
 
-        else:
-            self.board.create_text(x, y, text='', font=('Times', 20), tag= "."+str(cell_id) )
+      
+    def handle_button3(self, event):
+        x,y = self.pos_to_loc(event.x, event.y)
+        mutable = self.check_mutability(x,y)
+        if mutable:
+            cell_id = y*9+x
+            cell_id_str = "c" + str(cell_id)
+            self.board.delete(cell_id_str)
+            # x,y = self.loc_to_pos(x,y)
+            # self.crummy_delete(x,y)
+
+
+
+    def handle_button1(self, event):
+        x,y = self.pos_to_loc(event.x, event.y)
+        mutable = self.check_mutability(x,y)
+        if mutable:
+            cell_id = y*9+x
+            Input(self, cell_id)
+
+
+    def crummy_delete(self, x, y):
+        #Draws white square to cover location
+        step  =self.cellsize // 2
+        x1,x2 =  x-step, x+step
+        y1,y2 = y-step, y+step
+
+        self.board.create_rectangle(x1,y1,x2,y2)
+
+
+
+
+    def check_mutability(self, x, y):
+        item = self.mutablility_index[y][x]
+        return item == True
+
+
 
 
 
 
 if __name__ == "__main__":
-    s = Sudoku(mode = 'main', difficulty='hard' )
+    s = Sudoku(mode = 'main', difficulty='easy' )
