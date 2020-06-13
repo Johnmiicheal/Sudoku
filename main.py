@@ -10,6 +10,7 @@ class Sudoku:
         self.difficulty = difficulty
         self.linewd_sm, self.linewidth_bg = 3,7
         self.cellsize =  self.width // 9
+        self.entry = False
         self.build()
 
 
@@ -157,6 +158,7 @@ class Sudoku:
             if self.puzzle == self.solution:
                 messagebox.showinfo("Game Over", "You Won!")
                 self.root.destroy()
+                self.entry = False
 
         except:
             messagebox.showinfo("Input Error", "Invalid Input. Only integers from 1-9 inclusive.")
@@ -164,14 +166,19 @@ class Sudoku:
 
     def gen_entry(self, cell_id):
         """Generates entry widget on cell"""
-        pos_x, pos_y = self.cell_id_to_pos(cell_id)
 
-        self.choice = tk.StringVar(self.root)
-        self.e = tk.Entry(self.board, textvariable=self.choice)
-        self.e.bind('<Return>', lambda event : self.handle_choice(cell_id))
-        self.e.focus()
+        #Delete existing entry, if any
         
-        self.board.create_window(pos_x,pos_y,window = self.e, width=self.cellsize, height=self.cellsize)
+        if self.entry is False:
+            self.entry = True
+            pos_x, pos_y = self.cell_id_to_pos(cell_id)
+
+            self.choice = tk.StringVar(self.root)
+            self.e = tk.Entry(self.board, textvariable=self.choice)
+            self.e.bind('<Return>', lambda event : self.handle_choice(cell_id))
+            self.e.focus()
+            
+            self.board.create_window(pos_x,pos_y,window = self.e, width=self.cellsize, height=self.cellsize)
 
 
     def handle_button1(self, event):
@@ -205,7 +212,7 @@ class Sudoku:
         rect_tag = ".r" + str(cell_id) 
 
         #get rectangle limits
-        step = self.cellsize // 2
+        step = (self.cellsize / 2) + 1
         x1,x2 = x-step, x+step
         y1,y2 = y-step, y+step
 
