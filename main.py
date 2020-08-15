@@ -4,14 +4,16 @@ import copy
 from tkinter import messagebox
 
 class Sudoku:
-    def __init__(self, difficulty):
+    def __init__(self, difficulty,method="backtrack"):
 
         self.width, self.height = 800,800
         self.difficulty = difficulty
         self.linewd_sm, self.linewidth_bg = 3,7
         self.cellsize =  self.width // 9
         self.entry = False
+        self.method=method #backtrack or shift
         self.build()
+        # self.use_backtracking()
 
 
     def build(self):
@@ -63,7 +65,7 @@ class Sudoku:
 
 
     def gen_puzzle(self):
-        """Generates solved sudoku"""
+        """Generates solved sudoku using array shift method"""
         
         #generate seed nums to be shifted
         seed_nums = [i for i in range(1,10)]
@@ -81,11 +83,86 @@ class Sudoku:
         return puzzle
 
 
+    def checkGrid(self,grid):
+        """Check if grid is full"""
+        for row in range(0,9):
+            for col in range(0,9):
+                if grid[row][col]==0:
+                    return False 
+        return True 
+
+
+
+    
+
+
+
+    def gen_puzzle2(self):
+        """Using backtracking"""
+        self._p2_counter = 0
+        #Find next empty cell
+        for i in range(0,81):
+            row=i//9
+            col=i%9
+            if self._p2_grid[row][col]==0:
+                random.shuffle(self.numberlist)
+                for value in self.numberlist:
+                    if not(value in self._p2_grid[row]): # check value not in row
+                        if not value in ([self._p2_grid[i][col] for i in range(9)]): #Check value not in column
+                        #Find current square and check val not in square
+                            square=[]
+                            if row<3:
+                                if col<3:
+                                    square=[self._p2_grid[i][0:3] for i in range(0,3)]
+                                elif col<6:
+                                    square=[self._p2_grid[i][3:6] for i in range(0,3)]
+                                else:  
+                                    square=[self._p2_grid[i][6:9] for i in range(0,3)]
+                            elif row<6:
+                                if col<3:
+                                    square=[self._p2_grid[i][0:3] for i in range(3,6)]
+                                elif col<6:
+                                    square=[self._p2_grid[i][3:6] for i in range(3,6)]
+                                else:  
+                                    square=[self._p2_grid[i][6:9] for i in range(3,6)]
+                            else:
+                                if col<3:
+                                    square=[self._p2_grid[i][0:3] for i in range(6,9)]
+                                elif col<6:
+                                    square=[self._p2_grid[i][3:6] for i in range(6,9)]
+                                else:  
+                                    square=[self._p2_grid[i][6:9] for i in range(6,9)]
+
+                            #Check that this value has not already be used on this 3x3 square
+                            if not value in (square[0] + square[1] + square[2]):
+                                self._p2_grid[row][col]=value
+                                if self.checkGrid(self._p2_grid ):
+                                    self._p2_counter+=1
+                                    break
+                                else:
+                                    if self.gen_puzzle2():
+                                        return True
+                # break
+            # self._p2_grid[row][col]=0 
+
+
+
+    def use_backtracking(self):
+        self._p2_grid = [[0 for i in range(9)] for i in range(9)]
+        self.numberlist = [1,2,3,4,5,6,7,8,9]
+        self.gen_puzzle2()
+        # print(self._p2_grid)
+        return self._p2_grid
+
+
+
+
+
     def make_puzzle(self):
         """Applies removal rate, mutability index to solved sudoku and draws puzzle on board"""
 
         diffs = {'easy':0.5, 'medium': 0.6, 'hard': 0.8}
-        self.solution = self.gen_puzzle()
+        self.solution = self.gen_puzzle() if self.method=="shift" else self.use_backtracking()
         self.puzzle = copy.deepcopy(self.solution)
         
         #apply removal rate to puzzle
