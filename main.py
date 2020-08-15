@@ -235,10 +235,16 @@ class Sudoku:
             if self.puzzle == self.solution:
                 messagebox.showinfo("Game Over", "You Won!")
                 self.root.destroy()
-                self.entry = False
+            self.entry = False
 
         except:
             messagebox.showinfo("Input Error", "Invalid Input. Only integers from 1-9 inclusive.")
+
+
+    def leave_entry(self, cell_id):
+        """Leave entry with escape key and delete"""
+        self.e.destroy()
+        self.entry = False
 
 
     def gen_entry(self, cell_id):
@@ -253,6 +259,7 @@ class Sudoku:
             self.choice = tk.StringVar(self.root)
             self.e = tk.Entry(self.board, textvariable=self.choice)
             self.e.bind('<Return>', lambda event : self.handle_choice(cell_id))
+            self.e.bind('<Escape>', lambda event: self.leave_entry(cell_id))
             self.e.focus()
             
             self.board.create_window(pos_x,pos_y,window = self.e, width=self.cellsize, height=self.cellsize)
@@ -261,6 +268,7 @@ class Sudoku:
     def handle_button1(self, event):
         """On left click"""
         x,y = self.pos_to_loc(event.x, event.y)
+        print(x,y)
         if self.mutable(x,y):
             cell_id = y*9+x
             self.gen_entry(cell_id)
